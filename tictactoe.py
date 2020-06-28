@@ -76,36 +76,25 @@ class TicTacToe:
         self.ai_easy_move()
 
     def ai_minimax(self, f):
-        class Move:
-            index = None
-            score = 0
-
-            def __init__(self, score, index=None):
-                self.score = score
-                self.index = index
-
         pn = f.count("X") > f.count("O")
         if self.check_win(f):
-            return Move(1) if pn == self.pn else Move(-1)
+            return (1, None) if pn == self.pn else (-1, None)
         free_cells = self.free_cells(f)
         if not free_cells:
-            return Move(0)
-        moves = []
+            return 0, None
+        scores = []
+        indexes = []
         for cell in free_cells:
-            m = self.ai_minimax(self.test_move(f, cell, pn))
-            m.index = cell
-            moves.append(m)
-        max_ = moves[0]
-        min_ = moves[0]
-        for m in moves:
-            if m.score > max_.score:
-                max_ = m
-            if m.score < min_.score:
-                min_ = m
-        return max_ if pn != self.pn else min_
+            scores.append(self.ai_minimax(self.test_move(f, cell, pn))[0])
+            indexes.append(cell)
+        if pn != self.pn:
+            i = scores.index(max(scores))
+        else:
+            i = scores.index(min(scores))
+        return scores[i], indexes[i]
 
     def ai_hard_move(self):
-        self.make_move(self.ai_minimax(self.f).index)
+        self.make_move(self.ai_minimax(self.f)[1])
 
     def check_win(self, fs):
         lines = ('012', '345', '678', '630', '741', '852', '642', '048')
@@ -144,5 +133,5 @@ class TicTacToe:
             self.game()
 
 
-ttt = TicTacToe()  # "O XX X OO"
+ttt = TicTacToe()  #"O XX X OO"
 ttt.menu()
